@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -12,5 +12,20 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.7" PrivateAssets="all" />
 		<PackageReference Include="PublishSPAforGitHubPages.Build" Version="3.0.0" />
 	</ItemGroup>
+
+	<Target Name="SimplifyReleaseOutput" AfterTargets="Build" Condition="'$(Configuration)'=='Release'">
+		<!-- Create the Release folder in the project root if it doesn't exist -->
+		<Exec Command='if not exist "$(ProjectDir)Release" mkdir "$(ProjectDir)Release"' />
+
+		<!-- Remove any existing wwwroot folder to ensure a clean copy -->
+		<Exec Command='if exist "$(ProjectDir)Release\wwwroot" rmdir /S /Q "$(ProjectDir)Release\wwwroot"' />
+
+		<!-- Copy the wwwroot folder from browser-wasm\publish into Release\wwwroot -->
+		<Exec Command='xcopy /E /I /Y "$(TargetDir)browser-wasm\publish\wwwroot\*.*" "$(ProjectDir)Release\wwwroot\"' />
+
+		<!-- Copy the web.config file from browser-wasm\publish into Release -->
+		<Exec Command='xcopy /Y "$(TargetDir)browser-wasm\publish\web.config" "$(ProjectDir)Release\"' />
+	</Target>
+
 
 </Project>
