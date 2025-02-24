@@ -25,6 +25,12 @@ jobs:
       - name: Publish
         run: dotnet publish SecretGardenSolver.sln -c:Release -o:publish -p:GHPages=true
 
+      # Move contents of wwwroot to the root of publish directory
+      - name: Move files to root
+        run: |
+          mv publish/wwwroot/* publish/
+          rm -r publish/wwwroot  # Remove empty wwwroot directory
+
       # Deploy the site to the Build branch, placing files at the branch root
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
