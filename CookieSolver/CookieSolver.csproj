@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -13,18 +13,21 @@
 		<PackageReference Include="PublishSPAforGitHubPages.Build" Version="3.0.0" />
 	</ItemGroup>
 
+	<PropertyGroup>
+		<!-- Define docs directory one level above the project folder -->
+		<DocsDir>$(ProjectDir)..\docs\</DocsDir>
+	</PropertyGroup>
+
 	<Target Name="SimplifyDocsOutput" AfterTargets="Build" Condition="'$(Configuration)'=='Release'">
-		<!-- Create the docs folder in the project root if it doesn't exist -->
-		<Exec Command='if not exist "$(ProjectDir)docs" mkdir "$(ProjectDir)docs"' />
+		<!-- Create the docs folder in the solution directory if it doesn't exist -->
+		<Exec Command='if not exist "$(DocsDir)" mkdir "$(DocsDir)"' />
 
 		<!-- Remove any existing wwwroot folder in docs to ensure a clean copy -->
-		<Exec Command='if exist "$(ProjectDir)docs\wwwroot" rmdir /S /Q "$(ProjectDir)docs\wwwroot"' />
+		<Exec Command='if exist "$(DocsDir)wwwroot" rmdir /S /Q "$(DocsDir)wwwroot"' />
 
 		<!-- Copy the wwwroot folder from browser-wasm\publish into docs\wwwroot -->
-		<Exec Command='xcopy /E /I /Y "$(TargetDir)browser-wasm\publish\wwwroot\*.*" "$(ProjectDir)docs\wwwroot\"' />
+		<Exec Command='xcopy /E /I /Y "$(TargetDir)browser-wasm\publish\wwwroot\*.*" "$(DocsDir)"' />
 
-		<!-- Copy the web.config file from browser-wasm\publish into docs -->
-		<Exec Command='xcopy /Y "$(TargetDir)browser-wasm\publish\web.config" "$(ProjectDir)docs\"' />
 	</Target>
 
 
