@@ -1,0 +1,36 @@
+﻿@using CookieSolver.Model
+
+<div class="container mt-4">
+
+    @for (var i = 0; i < Tile.Row; i++)
+    {
+        <div class="row justify-content-start">
+
+            @for (var j = 0; j < Tile.Column; j++)
+            {
+                var row = i;
+                var column = j;
+
+                <div class="col-auto">
+                    <input type="text" class="form-control grid-box" @bind-value="Tile.Cells[row][column]">
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<button @onclick="Tile.Solve">Solve</button>
+
+<style>
+    .grid-box {
+        width: 80px;
+        height: 80px;
+        font-size: 24px;
+        text-align: center;
+    }
+</style>
+
+@code {
+    public Tile Tile = new Tile(5);
+
+}
