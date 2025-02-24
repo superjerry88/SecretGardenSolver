@@ -13,23 +13,4 @@
 		<PackageReference Include="PublishSPAforGitHubPages.Build" Version="3.0.0" />
 	</ItemGroup>
 
-	<PropertyGroup>
-		<!-- Define docs directory one level above the project folder -->
-		<DocsDir>$(ProjectDir)..\docs\</DocsDir>
-	</PropertyGroup>
-
-	<Target Name="SimplifyDocsOutput" AfterTargets="Build" Condition="'$(Configuration)'=='Release'">
-		<!-- Create the docs folder in the solution directory if it doesn't exist -->
-		<Exec Command='if not exist "$(DocsDir)" mkdir "$(DocsDir)"' />
-
-		<!-- Remove any existing wwwroot folder in docs to ensure a clean copy -->
-		<Exec Command='if exist "$(DocsDir)wwwroot" rmdir /S /Q "$(DocsDir)wwwroot"' />
-
-		<!-- Copy the wwwroot folder from browser-wasm\publish into docs\wwwroot -->
-		<Exec Command='xcopy /E /I /Y "$(TargetDir)browser-wasm\publish\wwwroot\*.*" "$(DocsDir)"' />
-
-	</Target>
-
-
-
 </Project>
