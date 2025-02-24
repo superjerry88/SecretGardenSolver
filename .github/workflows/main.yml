@@ -1,0 +1,35 @@
+name: Build Website
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v4
+
+      # Install .NET SDK
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install .NET WebAssembly Tools
+        run: dotnet workload install wasm-tools
+
+      # Publish the site
+      - name: Publish
+        run: dotnet publish SecretGardenSolver.sln -c:Release -o:publish -p:GHPages=true
+
+      # Deploy the site to the Build branch, placing files at the branch root
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: Build
+          publish_dir: publish
+          force_orphan: true
