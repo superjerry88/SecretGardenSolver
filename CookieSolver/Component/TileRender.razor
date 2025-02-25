@@ -1,22 +1,24 @@
 ﻿@using CookieSolver.Model
 
 <div class="container mt-4">
+    <div class="align-items-center">
+        @for (var i = 0; i < Tile.Row; i++)
+        {
+            <div class="row justify-content-start" style="padding-bottom:20px;">
 
-    @for (var i = 0; i < Tile.Row; i++)
-    {
-        <div class="row justify-content-start">
+                @for (var j = 0; j < Tile.Column; j++)
+                {
+                    var row = i;
+                    var column = j;
 
-            @for (var j = 0; j < Tile.Column; j++)
-            {
-                var row = i;
-                var column = j;
-
-                <div class="col-auto">
-                    <input type="text" class="form-control grid-box" @bind-value="Tile.Cells[row,column]">
-                </div>
-            }
-        </div>
-    }
+                    <div class="col-auto">
+                        <input type="text" class="form-control grid-box" @bind-value="Tile.Cells[row,column]">
+                    </div>
+                }
+            </div>
+        }
+    </div>
+    
 </div>
 
 <button @onclick="Tile.Solve">Solve</button>
@@ -31,6 +33,6 @@
 </style>
 
 @code {
-    public Tile Tile = new Tile(5);
+    public Tile Tile = new Tile(4);
 
 }
