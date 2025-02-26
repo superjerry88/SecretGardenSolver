@@ -40,6 +40,11 @@
     </div>
 </div>
 
+<InputNumber @bind-Value="Seed"></InputNumber>
+<Button Color="ButtonColor.Secondary" @onclick="SetSeed">Set Seed</Button>
+<p>Current Seed: @PieceRandomizer.Seed</p>
+
+
 <style>
     .grid-box {
         width: 80px;
@@ -57,5 +62,11 @@
 
 @code {
     public Tile Tile = new Tile(4);
+    public int Seed { get; set; } = PieceRandomizer.Seed;
+
+    void SetSeed()
+    {
+        PieceRandomizer.SetSeed(Seed);
+    }
 
 }
