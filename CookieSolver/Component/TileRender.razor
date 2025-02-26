@@ -2,26 +2,43 @@
 
 <div class="container mt-4">
     <div class="align-items-center">
-        @for (var i = 0; i < Tile.Row; i++)
+        @for (var i = 0; i < Tile.Size; i++)
         {
             <div class="row justify-content-start" style="padding-bottom:20px;">
 
-                @for (var j = 0; j < Tile.Column; j++)
+                @for (var j = 0; j < Tile.Size; j++)
                 {
                     var row = i;
                     var column = j;
 
-                    <div class="col-auto">
-                        <input type="text" class="form-control grid-box" @bind-value="Tile.Cells[row,column]">
+                    <div class="col-auto"
+                         @onclick="() => Tile.ResolveClick(Tile.CurrentBoard.Cells[row,column])">
+
+                        <div class="align-middle form-control d-table-cell grid-box
+                            @(Tile.CurrentBoard.Cells[row,column].Selected ? "selected" : "")">
+                            @Tile.CurrentBoard.Cells[row, column].Value
+                        </div>
                     </div>
                 }
             </div>
         }
     </div>
-    
 </div>
 
-<button @onclick="Tile.Solve">Solve</button>
+<div>Board Value: @Tile.CurrentBoard.BoardValue</div>
+
+<div>Next Piece : @(!Tile.CurrentBoard.GameLost ? Tile.CurrentBoard.NextPiece : "Game Over :(") </div>
+<button @onclick="Tile.PlaceNextPiece" hidden="@(Tile.CurrentBoard.GetEmptyCellPositions().Count == 0)">Place Next Piece</button>
+
+<p class="mt-2">Time travel buttons <span style="color: red;">(NOTE: currently not working as intended, cell values are evidently not remembered, so will update in the next version)</span></p>
+<div class="d-flex">
+    <div style="width: 200px;">
+        <button hidden="@(Tile.BoardStateHistoryPrevious.Count==0)" @onclick="Tile.GoToPreviousState">Go to Previous Board</button>
+    </div>
+    <div>
+        <button hidden="@(Tile.BoardStateHistoryNext.Count==0)" @onclick="Tile.GoToNextState">Go to Next Board</button>
+    </div>
+</div>
 
 <style>
     .grid-box {
@@ -29,6 +46,12 @@
         height: 80px;
         font-size: 24px;
         text-align: center;
+        user-select: none;
+    }
+
+    .selected {
+        border-color: forestgreen;
+        border-width: 3px;
     }
 </style>
 
