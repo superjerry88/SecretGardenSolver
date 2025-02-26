@@ -9,6 +9,7 @@ namespace CookieSolver.Model
 		public bool GameLost { get; set; }
 		public int Size { get; set; }
 		public Cell[,] Cells {  get; set; }
+        public List<Cell> CellList => Cells.Cast<Cell>().ToList(); // Cast 2d array to single list for easier iteration
 		public double BoardValue { get; set; } // Used to evaluate the value of each board state, allowing algo to choose which board states to go to easier
 		public BoardState(int size) : this(size, new Cell[size, size], -1) { }
 		public BoardState(int size, Cell[,] cells) : this(size, cells, -1) { }
@@ -33,7 +34,7 @@ namespace CookieSolver.Model
 
 		public List<Cell> GetNeighbours(Cell cell)
 		{
-			List<Cell> neighbours = new List<Cell>();
+			var neighbours = new List<Cell>();
 
 			if (cell.PosX + 1 < Size)
 				neighbours.Add(Cells[cell.PosY, cell.PosX + 1]);
@@ -46,51 +47,45 @@ namespace CookieSolver.Model
 
 			return neighbours;
 		}
+
+        public List<Cell> GetMergeableNeighbour(Cell cell)
+        {
+			// Note: I simplify the code with Linq
+            return GetNeighbours(cell)
+                .Where(neighbour => IsMergeable(cell, neighbour))
+                .ToList();
+        }
+
 		public List<Cell> GetMergeableCells()
 		{
-			List<Cell> mergeableCells = new List<Cell>();
-
-			foreach (Cell cell in Cells)
-			{
-				List<Cell> neighbours = GetNeighbours(cell);
-
-				foreach (Cell neighbour in neighbours)
-				{
-					if (IsMergeable(cell, neighbour))
-					{
-						mergeableCells.Add(cell);
-						break;
-					}
-				}
-			}
-
-			return mergeableCells;
+			//Note .Any() is same as Count > 0
+			return CellList.Where(cell => GetMergeableNeighbour(cell).Any())
+                .ToList();
 		}
 
 		public bool IsMergeable(Cell firstCell,  Cell secondCell)
 		{
-			bool mergeable = true;
+			// Note: Given the logic is to return false after failing a case, we can directly return false when the condition is not met
+            if (firstCell == secondCell)
+                return false;
 
-			if (firstCell == secondCell)
-				mergeable = false;
+            if (firstCell.Value != secondCell.Value)
+                return false;
 
-			if (firstCell.Value != secondCell.Value)
-				mergeable = false;
+            if (firstCell.Value == 0)
+                return false;
 
-			if (firstCell.Value == 0)
-				mergeable = false;
+            if (!GetNeighbours(firstCell).Contains(secondCell))
+                return false;
 
-			if (!GetNeighbours(firstCell).Contains(secondCell))
-				mergeable = false;
-
-			return mergeable;
+			return true;
 		}
 
 		public void Merge(Cell mergingCell, Cell targetCell)
-		{
-			Cells[mergingCell.PosY, mergingCell.PosX] = new Cell(mergingCell.PosY, mergingCell.PosX);  // Resets old cell to an empty cell
-			Cells[targetCell.PosY, targetCell.PosX].Value++;
-
+        {
+			//Note: Since you can already access the cell objects, you can directly update the values without reinitializing them
+            mergingCell.Value = 0;
+            targetCell.Value += 1;
 			CalculateBoardValue();
 		}
 
@@ -104,33 +99,34 @@ namespace CookieSolver.Model
 
 			BoardValue = 0;
 
-			foreach (Cell cell in Cells)
-			{
-				BoardValue += cell.Value;
-			}
+			// Add the value of each cell to the board value
+            BoardValue += CellList.Sum(c => c.Value);
 
-			foreach (Cell cell in GetMergeableCells())
-			{
-				BoardValue += MergeValueMultiplier * (cell.Value + 1);
-			}
+			// Add the value of each mergeable cell to the board value
+			// Note: Im not to sure what MergeValueMultiplier is for
+			BoardValue += GetMergeableCells()
+                .Select( c => c.Value + 1)
+                .Sum() * MergeValueMultiplier;
+			
 		}
 
-		public List<Tuple<int, int>> GetEmptyCellPositions()
+		public List<Cell> GetEmptyCellPositions()
 		{
-			List<Tuple<int, int>> emptyCellPositions = new List<Tuple<int, int>>();
-
-			foreach (Cell cell in Cells)
-			{
-				if (cell.Value == 0)
-					emptyCellPositions.Add(new Tuple<int, int>(cell.PosY, cell.PosX));
-			}
-
-			return emptyCellPositions;
+			// Note: you can use LINQ to filter the cells with value 0
+			// Note2: Tuple<int,int> is less favourable due to the lack of context, reusing the cell class here is totally fine
+			return CellList
+                .Where(cell => cell.Value == 0)
+                .ToList();
 		}
 
-		public void UpdateCell(int posY, int posX, int value)
+		public void UpdateCell(Cell cell, int value)
 		{
-			Cells[posY, posX] = new Cell(posY, posX, value);
+            // Note: you can directly replace the object value without reinitializing it, it also helps on the performance
+            // Old: Cells[posY, posX] = new Cell(posY, posX, value);
+			// New: Cells[posY, posX].Value = value;
+
+			// Update: i replaced the array lookup and use the cell as param directly to make it cleaner
+            cell.Value = value;
 			CalculateBoardValue();
 		}
 

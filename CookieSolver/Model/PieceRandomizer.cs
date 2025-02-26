@@ -10,7 +10,7 @@
 			return PossibleValues[random.Next(PossibleValues.Length)];
 		}
 
-		public static Tuple<int, int> GetRandomPosition(List<Tuple<int, int>> possiblePositions)
+		public static Cell GetRandomPosition(List<Cell> possiblePositions)
 		{
 			return possiblePositions[random.Next(possiblePositions.Count)];
 		}

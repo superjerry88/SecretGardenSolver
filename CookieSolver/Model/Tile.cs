@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace CookieSolver.Model
+﻿namespace CookieSolver.Model
 {
     public class Tile
     {
@@ -64,13 +62,13 @@ namespace CookieSolver.Model
 
 		public void PlaceNextPiece()
 		{
-			List<Tuple<int, int>> emptyCellPositions = CurrentBoard.GetEmptyCellPositions();
-			Tuple<int, int> nextPiecePosition = PieceRandomizer.GetRandomPosition(emptyCellPositions);
-			int pieceValue = CurrentBoard.NextPiece;
+			var emptyCells = CurrentBoard.GetEmptyCellPositions();
+			var randomEmptyCell = PieceRandomizer.GetRandomPosition(emptyCells);
+			var pieceValue = CurrentBoard.NextPiece;
 
 			BoardStateHistoryPrevious.Push(new BoardState(Size, CurrentBoard.Cells, CurrentBoard.NextPiece));
 			CurrentBoard = new BoardState(Size, CurrentBoard.Cells);
-			CurrentBoard.UpdateCell(nextPiecePosition.Item1, nextPiecePosition.Item2, pieceValue);
+			CurrentBoard.UpdateCell(randomEmptyCell, pieceValue);
 			CurrentBoard.UpdateGameState();
 
 			// If an action is done while on a previous board state, erase the future stack (effectively an undo button)
