@@ -31,6 +31,7 @@
 <button @onclick="Tile.PlaceNextPiece" hidden="@(Tile.CurrentBoard.GetEmptyCellPositions().Count == 0)">Place Next Piece</button>
 
 <p class="mt-2">Time travel buttons <span style="color: red;">(NOTE: currently not working as intended, cell values are evidently not remembered, so will update in the next version)</span></p>
+
 <div class="d-flex">
     <div style="width: 200px;">
         <button hidden="@(Tile.BoardStateHistoryPrevious.Count==0)" @onclick="Tile.GoToPreviousState">Go to Previous Board</button>
@@ -40,9 +41,26 @@
     </div>
 </div>
 
-<InputNumber @bind-Value="Seed"></InputNumber>
-<Button Color="ButtonColor.Secondary" @onclick="SetSeed">Set Seed</Button>
-<p>Current Seed: @PieceRandomizer.Seed</p>
+
+<Button Color="ButtonColor.Primary" @onclick="ToggleSeedSetting">Toggle Seed Settings</Button>
+<Collapse @ref="_seedSettingsUi">
+    <div class="row mb-4">
+
+        <div class="col-md-2 d-flex align-items-center">
+            Current Seed: @PieceRandomizer.Seed
+        </div>
+
+        <div class="col-md-2">
+            <NumberInput TValue="int" @bind-Value="@Seed"/>
+        </div>
+
+        <div class="col-md-2">
+            <Button Color="ButtonColor.Secondary" @onclick="SetSeed">Update</Button>
+        </div>
+
+    </div>
+</Collapse>
+
 
 
 <style>
@@ -64,9 +82,12 @@
     public Tile Tile = new Tile(4);
     public int Seed { get; set; } = PieceRandomizer.Seed;
 
+    Collapse _seedSettingsUi = default!;
+
     void SetSeed()
     {
         PieceRandomizer.SetSeed(Seed);
     }
 
+    private async Task ToggleSeedSetting() => await _seedSettingsUi.ToggleAsync();
 }
