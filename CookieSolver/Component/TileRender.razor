@@ -29,15 +29,12 @@
 
 <div>Next Piece : @(!Tile.CurrentBoard.GameLost ? Tile.CurrentBoard.NextPiece : "Game Over :(") </div>
 <button @onclick="Tile.PlaceNextPiece" hidden="@(Tile.CurrentBoard.GetEmptyCellPositions().Count == 0)">Place Next Piece</button>
+<div class="mb-3">
+    <h3 class="mt-2 mb-0">Time Travel Buttons</h3>
 
-<p class="mt-2">Time travel buttons <span style="color: red;">(NOTE: currently not working as intended, cell values are evidently not remembered, so will update in the next version)</span></p>
-
-<div class="d-flex">
-    <div style="width: 200px;">
-        <button hidden="@(Tile.BoardStateHistoryPrevious.Count==0)" @onclick="Tile.GoToPreviousState">Go to Previous Board</button>
-    </div>
-    <div>
-        <button hidden="@(Tile.BoardStateHistoryNext.Count==0)" @onclick="Tile.GoToNextState">Go to Next Board</button>
+    <div id="tt-buttons" class="d-flex justify-content-between p-2 border-white rounded" style="width:450px; height: 70px; border: dashed 1px;">
+            <Button Disabled="@(Tile.BoardStateHistoryPrevious.Count==0)" @onclick="Tile.GoToPreviousState">Go to Previous Board</Button>
+            <Button Disabled="@(Tile.BoardStateHistoryNext.Count==0)" @onclick="Tile.GoToNextState">Go to Next Board</Button>
     </div>
 </div>
 
@@ -76,6 +73,14 @@
         border-color: forestgreen;
         border-width: 3px;
     }
+
+    #tt-buttons Button {
+        width: 200px;
+        background-color: dimgray;
+        border-color: lightgray;
+    }
+
+    
 </style>
 
 @code {

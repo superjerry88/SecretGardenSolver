@@ -4,8 +4,8 @@
     {
         public int Size { get; set; }
         public BoardState CurrentBoard { get; set; }
-		public Stack<BoardState> BoardStateHistoryPrevious { set; get; }
-		public Stack<BoardState> BoardStateHistoryNext { set; get; }
+		public Stack<string> BoardStateHistoryPrevious { set; get; }
+		public Stack<string> BoardStateHistoryNext { set; get; }
 		public Cell[] CellsToMerge { get; set; }
 
 		// Handle game logic if manual clicking needs to be done
@@ -17,8 +17,8 @@
             CurrentBoard = new BoardState(size);
             Size = size;
 			CellsToMerge = new Cell[2];
-			BoardStateHistoryPrevious = new Stack<BoardState>();
-			BoardStateHistoryNext = new Stack<BoardState>();
+			BoardStateHistoryPrevious = new Stack<string>();
+			BoardStateHistoryNext = new Stack<string>();
 		}
 
 		public void ResolveClick(Cell cell)
@@ -45,12 +45,12 @@
 
 					if (CurrentBoard.IsMergeable(firstCell, secondCell))
 					{
-						BoardStateHistoryPrevious.Push(new BoardState(Size, CurrentBoard.Cells, CurrentBoard.NextPiece));
+						BoardStateHistoryPrevious.Push(BoardStateHelper.EncodeBoardState(CurrentBoard));
 						CurrentBoard = new BoardState(Size, CurrentBoard.Cells, CurrentBoard.NextPiece);
 						CurrentBoard.Merge(firstCell, secondCell);
 
 						// If an action is done while on a previous board state, erase the future stack (effectively an undo button)
-						BoardStateHistoryNext = new Stack<BoardState>();
+						BoardStateHistoryNext = new Stack<string>();
 					}
 
 					firstCell.Selected = false;
@@ -66,28 +66,26 @@
 			var randomEmptyCell = PieceRandomizer.GetRandomPosition(emptyCells);
 			var pieceValue = CurrentBoard.NextPiece;
 
-			BoardStateHistoryPrevious.Push(new BoardState(Size, CurrentBoard.Cells, CurrentBoard.NextPiece));
+			BoardStateHistoryPrevious.Push(BoardStateHelper.EncodeBoardState(CurrentBoard));
 			CurrentBoard = new BoardState(Size, CurrentBoard.Cells);
 			CurrentBoard.UpdateCell(randomEmptyCell, pieceValue);
 			CurrentBoard.UpdateGameState();
 
 			// If an action is done while on a previous board state, erase the future stack (effectively an undo button)
-			BoardStateHistoryNext = new Stack<BoardState>();
+			BoardStateHistoryNext = new Stack<string>();
 		}
 
 		public void GoToPreviousState()
 		{
-			BoardStateHistoryNext.Push(new BoardState(Size, CurrentBoard.Cells, CurrentBoard.NextPiece));
-			BoardState newBoard = BoardStateHistoryPrevious.Pop();
-			CurrentBoard = new BoardState(newBoard.Size, newBoard.Cells, newBoard.NextPiece);
+			BoardStateHistoryNext.Push(BoardStateHelper.EncodeBoardState(CurrentBoard));
+			CurrentBoard = BoardStateHelper.ParseBoardString(BoardStateHistoryPrevious.Pop());
 			CurrentBoard.UpdateGameState();
 		}
 
 		public void GoToNextState()
 		{
-			BoardStateHistoryPrevious.Push(new BoardState(Size, CurrentBoard.Cells, CurrentBoard.NextPiece));
-			BoardState newBoard = BoardStateHistoryNext.Pop();
-			CurrentBoard = new BoardState(newBoard.Size, newBoard.Cells, newBoard.NextPiece);
+			BoardStateHistoryPrevious.Push(BoardStateHelper.EncodeBoardState(CurrentBoard));
+			CurrentBoard = BoardStateHelper.ParseBoardString(BoardStateHistoryNext.Pop());
 			CurrentBoard.UpdateGameState();
 		}
 	}
