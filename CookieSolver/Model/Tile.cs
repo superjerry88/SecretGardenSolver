@@ -23,8 +23,6 @@
 
 		public void ResolveClick(Cell cell)
 		{
-			Console.Write(cell.PosY.ToString() + cell.PosX.ToString());
-
 			switch (CurrentState)
 			{
 				case ClickState.FirstCell:

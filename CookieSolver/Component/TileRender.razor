@@ -1,42 +1,72 @@
 ﻿@using CookieSolver.Model
 
-<div class="container mt-4">
-    <div class="align-items-center">
-        @for (var i = 0; i < Tile.Size; i++)
-        {
-            <div class="row justify-content-start" style="padding-bottom:20px;">
-
-                @for (var j = 0; j < Tile.Size; j++)
+<div class="d-flex">
+    <div style="width: 50%">
+        <div class="container mt-4">
+            <div class="align-items-center">
+                @for (var i = 0; i < Tile.Size; i++)
                 {
-                    var row = i;
-                    var column = j;
+                    <div class="row justify-content-start" style="padding-bottom:20px;">
 
-                    <div class="col-auto"
-                         @onclick="() => Tile.ResolveClick(Tile.CurrentBoard.Cells[row,column])">
+                        @for (var j = 0; j < Tile.Size; j++)
+                        {
+                            var row = i;
+                            var column = j;
 
-                        <div class="align-middle form-control d-table-cell grid-box
+                            <div class="col-auto"
+                                 @onclick="() => Tile.ResolveClick(Tile.CurrentBoard.Cells[row,column])">
+
+                                <div class="align-middle form-control d-table-cell grid-box
                             @(Tile.CurrentBoard.Cells[row,column].Selected ? "selected" : "")">
-                            @Tile.CurrentBoard.Cells[row, column].Value
-                        </div>
+                                    @Tile.CurrentBoard.Cells[row, column].Value
+                                </div>
+                            </div>
+                        }
                     </div>
                 }
             </div>
-        }
+        </div>
+
+        <div>Board Value: @Tile.CurrentBoard.BoardValue</div>
+
+        <div>Next Piece : @(!Tile.CurrentBoard.GameLost ? Tile.CurrentBoard.NextPiece : "Game Over :(") </div>
+        <button @onclick="Tile.PlaceNextPiece" disabled="@(Tile.CurrentBoard.GetEmptyCellPositions().Count == 0)">Place Next Piece</button>
+        <div class="mb-3">
+            <h3 class="mt-2 mb-0">Time Travel Buttons</h3>
+
+            <div id="tt-buttons" class="d-flex justify-content-between p-2 border-white rounded" style="width:450px; height: 70px; border: dashed 1px;">
+                <Button Disabled="@(Tile.BoardStateHistoryPrevious.Count==0)" @onclick="Tile.GoToPreviousState">Go to Previous Board</Button>
+                <Button Disabled="@(Tile.BoardStateHistoryNext.Count==0)" @onclick="Tile.GoToNextState">Go to Next Board</Button>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div id="variable-adjustment-menu">
+            <h3>Board Value Variable Adjustment</h3>
+            
+            <div>
+                <label>Empty Cell Multiplier</label>
+                <input @bind="Tile.CurrentBoard.EmptyCellMultiplier" @bind:after="Tile.CurrentBoard.CalculateBoardValue" type="number" min="0" />
+            </div>
+
+            <div>
+                <label>Cell Value Multiplier</label>
+                <input @bind="Tile.CurrentBoard.CellValueMultiplier" @bind:after="Tile.CurrentBoard.CalculateBoardValue"  type="number" min="0" />
+            </div>
+
+            <div>
+                <label>Possible Merge Multiplier</label>
+                <input @bind="Tile.CurrentBoard.PossibleMergeMultiplier" @bind:after="Tile.CurrentBoard.CalculateBoardValue"  type="number" min="0" />
+            </div>
+
+            <div>
+                <label>Merge Chain Multiplier</label>
+                <input @bind="Tile.CurrentBoard.MergeChainMultiplier" @bind:after="Tile.CurrentBoard.CalculateBoardValue"  type="number" min="0" />
+            </div>
+        </div>
     </div>
 </div>
 
-<div>Board Value: @Tile.CurrentBoard.BoardValue</div>
-
-<div>Next Piece : @(!Tile.CurrentBoard.GameLost ? Tile.CurrentBoard.NextPiece : "Game Over :(") </div>
-<button @onclick="Tile.PlaceNextPiece" hidden="@(Tile.CurrentBoard.GetEmptyCellPositions().Count == 0)">Place Next Piece</button>
-<div class="mb-3">
-    <h3 class="mt-2 mb-0">Time Travel Buttons</h3>
-
-    <div id="tt-buttons" class="d-flex justify-content-between p-2 border-white rounded" style="width:450px; height: 70px; border: dashed 1px;">
-            <Button Disabled="@(Tile.BoardStateHistoryPrevious.Count==0)" @onclick="Tile.GoToPreviousState">Go to Previous Board</Button>
-            <Button Disabled="@(Tile.BoardStateHistoryNext.Count==0)" @onclick="Tile.GoToNextState">Go to Next Board</Button>
-    </div>
-</div>
 
 
 <Button Color="ButtonColor.Primary" @onclick="ToggleSeedSetting">Toggle Seed Settings</Button>
@@ -80,7 +110,15 @@
         border-color: lightgray;
     }
 
-    
+    #variable-adjustment-menu div {
+        width: 100%;
+        display: flex;
+        margin-bottom: 5px;
+    }
+
+    #variable-adjustment-menu div label {
+        width: 50%;
+    }
 </style>
 
 @code {
